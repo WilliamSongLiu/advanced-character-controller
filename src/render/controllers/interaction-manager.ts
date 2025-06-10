@@ -8,7 +8,7 @@ export class InteractionManager {
   private interactionText: THREE.Sprite
   private interactableObjects: THREE.Object3D[] = []
   private currentInteractable: THREE.Object3D | null = null
-  private readonly INTERACTION_DISTANCE = 5
+  private readonly INTERACTION_DISTANCE = 3
   private onInteract: ((object: THREE.Object3D) => void) | null = null
 
   constructor() {
