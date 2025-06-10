@@ -546,16 +546,19 @@ class CharacterController extends THREE.Mesh {
 
   updateCamera(timestamp: number, timeDiff: number) {
     this.camera.position.copy(this.position)
-    // this.camera.position.y += this.avatar.height / 2
 
     // moving by the camera angle
     const circleRadius = this.zoomController.zoom
     const cameraOffset = vec3_0.set(
-      circleRadius * Math.cos(-this.phi),
-      circleRadius * Math.cos(this.theta + HALF_PI),
-      circleRadius * Math.sin(-this.phi)
+      circleRadius * Math.cos(-this.phi) * Math.cos(this.theta),
+      circleRadius * Math.sin(-this.theta),
+      circleRadius * Math.sin(-this.phi) * Math.cos(this.theta)
     )
     this.camera.position.add(cameraOffset)
+
+    // Prevent camera from going below ground plane
+    this.camera.position.y = Math.max(this.camera.position.y, 0.1)
+
     this.camera.lookAt(this.position)
 
     // head bob
@@ -631,7 +634,7 @@ class CharacterController extends THREE.Mesh {
     const PHI_SPEED = 2.5
     const THETA_SPEED = 2.5
     this.phi += -xh * PHI_SPEED
-    this.theta = clamp(this.theta + -yh * THETA_SPEED, -Math.PI / 2, Math.PI / 2)
+    this.theta = clamp(this.theta + -yh * THETA_SPEED, -Math.PI / 2 + 0.1, Math.PI / 2 - 0.1)
 
     const qx = quaternion_0
     qx.setFromAxisAngle(UP, this.phi)
