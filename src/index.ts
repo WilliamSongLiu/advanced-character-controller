@@ -5,7 +5,7 @@ import '@total-typescript/ts-reset'
 import '@/styles/index.scss'
 
 // engine
-import { initEngine } from './render/init'
+import { initEngine } from './engine/init'
 
 // app
 import startApp from './app'

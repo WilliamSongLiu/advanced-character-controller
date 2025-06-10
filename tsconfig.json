@@ -100,6 +100,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["**/*.ts", "**/*.tsx", "src/render/math/Color.js"],
+  "include": ["**/*.ts", "**/*.tsx", "src/engine/math/Color.js"],
   "exclude": ["node_modules"]
 }

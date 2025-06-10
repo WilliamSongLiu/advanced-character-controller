@@ -5,10 +5,10 @@ import {
   useScene,
   useTick,
   useInteractionManager,
-} from './render/init'
+} from './engine/init'
 
-import { createGroundMesh, createCuboidMesh } from './render/game/objects'
-import { TickData } from './render/managers/tick-manager'
+import { createGroundMesh, createCuboidMesh } from './engine/game/objects'
+import { TickData } from './engine/managers/tick-manager'
 
 const startApp = async () => {
   // three
