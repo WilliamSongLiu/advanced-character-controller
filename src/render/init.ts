@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { EffectComposer, Pass } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
@@ -14,15 +13,12 @@ import InitRapier from './physics/RAPIER'
 import { PhysicsObject } from './physics/physics'
 import { GRAVITY } from './physics/utils/constants'
 
-const GUI = require('three/examples/jsm/libs/lil-gui.module.min.js').GUI
-
 let scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
   renderer: THREE.WebGLRenderer,
   renderTarget: THREE.WebGLRenderTarget,
   composer: EffectComposer,
   controls: AvatarController,
-  gui: typeof GUI,
   renderWidth: number,
   renderHeight: number,
   renderAspectRatio: number,
@@ -72,8 +68,6 @@ export const initEngine = async () => {
   const renderPass = new RenderPass(scene, camera)
   composer.addPass(renderPass)
 
-  gui = new GUI()
-
   window.addEventListener(
     'resize',
     () => {
@@ -118,8 +112,6 @@ export const useControls = () => controls
 export const useRenderTarget = () => renderTarget
 
 export const useComposer = () => composer
-
-export const useGui = () => gui
 
 export const addPass = (pass: Pass) => {
   composer.addPass(pass)

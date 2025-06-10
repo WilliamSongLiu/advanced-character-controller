@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import {
   useCamera,
-  useGui,
   useRenderSize,
   useScene,
   useLoader,
@@ -19,7 +18,6 @@ const startApp = async () => {
   camera.position.x += 10
   camera.position.y += 10
   camera.lookAt(new THREE.Vector3(0))
-  const gui = useGui()
   const { width, height } = useRenderSize()
 
   const dirLight = new THREE.DirectionalLight('#ffffff', 1)
@@ -103,8 +101,6 @@ const startApp = async () => {
   for (let i = 0; i < NUM_CUBES; i++) {
     spawnCube()
   }
-
-  gui.add({ spawnCube }, 'spawnCube').name('Spawn Cube')
 }
 
 export default startApp
