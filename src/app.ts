@@ -69,7 +69,7 @@ const startApp = async () => {
 
   const _addCubeMesh = (pos: THREE.Vector3) => {
     // * Settings
-    const size = 2
+    const size = 1
 
     // * Mesh
     const geometry = new THREE.BoxGeometry(size, size, size)
