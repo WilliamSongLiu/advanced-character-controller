@@ -496,7 +496,7 @@ class CharacterController extends THREE.Mesh {
     if (hit) {
       const collider = hit.collider
       const rigidBody = collider.parent()
-      
+
       if (rigidBody) {
         const bodyType = rigidBody.bodyType()
         return bodyType === RAPIER.RigidBodyType.Fixed
@@ -595,13 +595,12 @@ class CharacterController extends THREE.Mesh {
     vec3_1.applyQuaternion(qx)
     vec3_1.multiplyScalar(sideVelocity * timeDiff_d10)
 
-    // Apply forward movement if no collision with fixed objects
-    if (vec3_0.length() > 0 && !this.checkCollisionWithFixed(vec3_0)) {
-      this.position.add(vec3_0)
-    }
+    // Combine the vectors to get the actual movement direction
+    const movementDirection = vec3_0.clone().add(vec3_1).normalize()
 
-    // Apply side movement if no collision with fixed objects  
-    if (vec3_1.length() > 0 && !this.checkCollisionWithFixed(vec3_1)) {
+    // Apply movement if no collision with fixed objects
+    if (movementDirection.length() > 0 && !this.checkCollisionWithFixed(movementDirection)) {
+      this.position.add(vec3_0)
       this.position.add(vec3_1)
     }
 
