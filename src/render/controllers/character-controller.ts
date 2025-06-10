@@ -27,6 +27,7 @@ const quaternion_0 = new THREE.Quaternion()
 const quaternion_1 = new THREE.Quaternion()
 const vec3_0 = new THREE.Vector3()
 const vec3_1 = new THREE.Vector3()
+const vec3_collision = new THREE.Vector3()
 let ray_0: Rapier.Ray
 
 // * supported keyboard keys
@@ -471,6 +472,40 @@ class CharacterController extends THREE.Mesh {
     }
   }
 
+  checkCollisionWithFixed(direction: THREE.Vector3): boolean {
+    const physics = usePhysics()
+    const avatarRadius = this.avatar.width / 2
+
+    const rayOrigin = vec3_collision.copy(this.position)
+    const ray = ray_0
+    ray.origin = rayOrigin
+    ray.dir = direction.clone().normalize()
+
+    const rayDistance = avatarRadius + 0.1
+
+    const hit = physics.castRayAndGetNormal(
+      ray,
+      rayDistance,
+      true,
+      undefined,
+      undefined,
+      this.physicsObject.collider,
+      this.physicsObject.rigidBody
+    )
+
+    if (hit) {
+      const collider = hit.collider
+      const rigidBody = collider.parent()
+      
+      if (rigidBody) {
+        const bodyType = rigidBody.bodyType()
+        return bodyType === RAPIER.RigidBodyType.Fixed
+      }
+    }
+
+    return false
+  }
+
   update(timestamp: number, timeDiff: number) {
     this.updateRotation()
     this.updateTranslation(timeDiff)
@@ -560,8 +595,15 @@ class CharacterController extends THREE.Mesh {
     vec3_1.applyQuaternion(qx)
     vec3_1.multiplyScalar(sideVelocity * timeDiff_d10)
 
-    this.position.add(vec3_0)
-    this.position.add(vec3_1)
+    // Apply forward movement if no collision with fixed objects
+    if (vec3_0.length() > 0 && !this.checkCollisionWithFixed(vec3_0)) {
+      this.position.add(vec3_0)
+    }
+
+    // Apply side movement if no collision with fixed objects  
+    if (vec3_1.length() > 0 && !this.checkCollisionWithFixed(vec3_1)) {
+      this.position.add(vec3_1)
+    }
 
     // Height
     const elevationFactor = this.inputManager.runActionByKey(KEYS.space, () => 1, () => 0)
