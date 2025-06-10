@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { useScene } from '../../init'
-import { addPhysics } from '../../physics/physics'
+import { useScene } from '../init'
+import { addPhysics } from '../physics/physics'
 
 const _addCapsule = (
   height: number,

@@ -7,8 +7,8 @@ import {
   useInteractionManager,
 } from './render/init'
 
-import { _addGroundMesh, _addCubeMesh, _addChestMesh } from './render/controllers/utils/meshes'
-import { TickData } from './render/controllers/tick-manager'
+import { _addGroundMesh, _addCubeMesh, _addChestMesh } from './render/game/meshes'
+import { TickData } from './render/managers/tick-manager'
 
 const startApp = async () => {
   // three

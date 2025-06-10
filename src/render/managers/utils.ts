@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export const lerp = (x: number, y: number, a: number) => x * (1 - a) + y * a
 
 export const easeOutExpo = (x: number) => {
@@ -14,4 +16,13 @@ export const UpDownCirc = (x: number) => {
 
 export const clamp = (x: number, a: number, b: number) => {
   return Math.min(Math.max(x, a), b)
+}
+
+export const _calculateObjectSize = (object: THREE.Object3D) => {
+  const bbox = new THREE.Box3()
+  bbox.expandByObject(object)
+  const size = new THREE.Vector3()
+  bbox.getSize(size)
+
+  return size
 }

@@ -83,7 +83,6 @@ class TickManager extends EventTarget {
         fn && fn()
       }
 
-      // performance tracker start
       this.fps = 1000 / this.timeDiff
       this.lastTimestamp = this.timestamp
 
