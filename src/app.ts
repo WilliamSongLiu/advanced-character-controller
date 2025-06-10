@@ -1,28 +1,16 @@
 import * as THREE from 'three'
 import {
-  addPass,
   useCamera,
-  useControls,
   useGui,
-  useLoader,
   useRenderSize,
   useScene,
+  useLoader,
   useTick,
 } from './render/init'
 
-// import postprocessing passes
-import { SavePass } from 'three/examples/jsm/postprocessing/SavePass.js'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { BlendShader } from 'three/examples/jsm/shaders/BlendShader.js'
-import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
-
 import { addPhysics } from './render/physics/physics'
 
-
 import { TickData } from './render/controllers/tick-manager'
-
-const MOTION_BLUR_AMOUNT = 0.5
 
 const startApp = async () => {
   // three
@@ -37,9 +25,6 @@ const startApp = async () => {
   const dirLight = new THREE.DirectionalLight('#ffffff', 1)
   dirLight.position.y += 1
   dirLight.position.x += 0.5
-
-  const dirLightHelper = new THREE.DirectionalLightHelper(dirLight)
-  // dirLight.add(dirLightHelper)
 
   const ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
   scene.add(dirLight, ambientLight)
