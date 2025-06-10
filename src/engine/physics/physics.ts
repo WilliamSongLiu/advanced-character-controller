@@ -1,5 +1,5 @@
 import Rapier from '@dimforge/rapier3d'
-import { RAPIER, usePhysics, usePhysicsObjects } from '../init'
+import { RAPIER, usePhysics, usePhysicsObjects } from '@/engine/init'
 
 export type PhysicsObject = {
   mesh: THREE.Mesh

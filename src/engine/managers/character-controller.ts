@@ -1,10 +1,10 @@
 import * as THREE from 'three'
-import { RAPIER, usePhysics, useRenderSize } from '../init'
-import { useRenderer } from '../init'
-import { PhysicsObject, addPhysics } from '../physics/physics'
+import { RAPIER, usePhysics, useRenderSize } from '@/engine/init'
+import { useRenderer } from '@/engine/init'
+import { PhysicsObject, addPhysics } from '@/engine/physics/physics'
 import Rapier from '@dimforge/rapier3d'
-import { GRAVITY } from '../physics/constants'
-import { clamp, lerp, easeOutExpo, _calculateObjectSize } from './utils'
+import { GRAVITY } from '@/engine/physics/constants'
+import { clamp, lerp, easeOutExpo, _calculateObjectSize } from '@/engine/managers/utils'
 
 // * constants
 const MIN_ZOOM_LEVEL = 0.001 // needs to be slightly bigger than zero

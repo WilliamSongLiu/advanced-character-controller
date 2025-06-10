@@ -1,11 +1,5 @@
 import * as THREE from 'three'
-import {
-  useComposer,
-  useControls,
-  usePhysics,
-  usePhysicsObjects,
-  useRenderer,
-} from '../init'
+import { useComposer, useControls, usePhysics, usePhysicsObjects, useRenderer } from '@/engine/init'
 
 // animation params
 type Frame = XRFrame | null

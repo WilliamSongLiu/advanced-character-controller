@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { createGroundMesh, createCuboidMesh } from '../engine/meshes'
-import { useInteractionManager } from '../engine/init'
+import { createGroundMesh, createCuboidMesh } from '@/engine/meshes'
+import { useInteractionManager } from '@/engine/init'
 
 export const setupScene = () => {
   const interactionManager = useInteractionManager()

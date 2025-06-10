@@ -1,9 +1,8 @@
 import * as THREE from 'three'
-import { useCamera, useRenderSize, useScene } from './engine/init'
-import { setupScene } from './game/setup-scene'
+import { useCamera, useRenderSize, useScene } from '@/engine/init'
+import { setupScene } from '@/game/setup-scene'
 
 const startApp = async () => {
-  // three
   const scene = useScene()
   const camera = useCamera()
   camera.position.x += 10

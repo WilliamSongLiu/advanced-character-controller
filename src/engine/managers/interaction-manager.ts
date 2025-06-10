@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { useCamera, useScene } from '../init'
+import { useCamera, useScene } from '@/engine/init'
 
 interface InteractableObject extends THREE.Object3D {
   onInteract?: () => void;

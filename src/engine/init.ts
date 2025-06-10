@@ -2,16 +2,16 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { EffectComposer, Pass } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import TickManager from './managers/tick-manager'
-import { InteractionManager } from './managers/interaction-manager'
+import TickManager from '@/engine/managers/tick-manager'
+import { InteractionManager } from '@/engine/managers/interaction-manager'
 
 // wasm
 import Rapier from '@dimforge/rapier3d'
-import AvatarController from './managers/character-controller'
-import { createCapsule } from './meshes'
-import InitRapier from './physics/RAPIER'
-import { PhysicsObject } from './physics/physics'
-import { GRAVITY } from './physics/constants'
+import AvatarController from '@/engine/managers/character-controller'
+import { createCapsule } from '@/engine/meshes'
+import InitRapier from '@/engine/physics/RAPIER'
+import { PhysicsObject } from '@/engine/physics/physics'
+import { GRAVITY } from '@/engine/physics/constants'
 
 let scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
