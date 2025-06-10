@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { useScene } from '../init'
-import { addPhysics } from '../physics/physics'
+import { useScene } from './init'
+import { addPhysics } from './physics/physics'
 
 const createCapsule = (pos: THREE.Vector3, height: number, radius: number, capSegments: number, radialSegments: number) => {
   const scene = useScene()
