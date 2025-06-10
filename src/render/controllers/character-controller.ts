@@ -1,12 +1,11 @@
 import * as THREE from 'three'
-import { Object3D } from 'three'
-import { RAPIER, usePhysics, useRenderSize, useScene } from '../init'
+import { RAPIER, usePhysics, useRenderSize } from '../init'
 import { useRenderer } from './../init'
 import { PhysicsObject, addPhysics } from '../physics/physics'
 import Rapier from '@dimforge/rapier3d'
 import { GRAVITY } from '../physics/utils/constants'
 import { _calculateObjectSize } from './utils/objects'
-import { clamp, lerp, easeOutExpo, EaseOutCirc, UpDownCirc } from './utils/math'
+import { clamp, lerp, easeOutExpo } from './utils/math'
 
 // * helpers
 const HALF_PI = Math.PI / 2
@@ -21,8 +20,7 @@ const MIN_ZOOM_LEVEL = 0.001 // needs to be slightly bigger than zero
 const MAX_ZOOM_LEVEL = 20
 const SCROLL_LEVEL_STEP = 1.5
 const SCROLL_ANIMATION_SPEED = 2
-const JUMP_DURATION = 0.5
-const JUMP_AMPLITUDE = 0.5
+const JUMP_FORCE = 8
 
 // * local variables
 const quaternion_0 = new THREE.Quaternion()
@@ -65,7 +63,7 @@ type MouseState = {
 class InputManager {
   target: Document
   currentMouse: MouseState
-  currentKeys: Map<string, boolean> 
+  currentKeys: Map<string, boolean>
   pointerLocked: boolean
 
   constructor(target?: Document) {
@@ -340,62 +338,64 @@ class ZoomController {
 
 // * Responsible for controlling the vertical movement of the character (gravity, jump, etc...)
 class HeightController {
-  height: number
-  lastHeight: number
   movePerFrame: number
-  lastGroundHeight: number
-  startFallAnimation: number
-  isAnimating: boolean
   grounded: boolean
   jumpFactor: number
-  startJumpAnimation: number
+  jumpBufferTime: number
+  lastJumpTime: number
+  jumpBufferDuration: number
+  verticalVelocity: number
 
   constructor() {
-    this.height = 0
-    this.lastHeight = this.height
     this.movePerFrame = 0
-    this.lastGroundHeight = this.height
-    this.startFallAnimation = 0
-    this.startJumpAnimation = 0
     this.jumpFactor = 0
-    this.isAnimating = false
     this.grounded = false
+    this.jumpBufferTime = 0
+    this.lastJumpTime = 0
+    this.jumpBufferDuration = 0.2
+    this.verticalVelocity = 0
   }
 
   update(timestamp: number, timeDiff: number) {
-    this.isAnimating = !this.grounded
+    // Apply gravity
+    this.verticalVelocity += GRAVITY.y * timeDiff
 
-    if (this.isAnimating) {
-      const t = timestamp - this.startFallAnimation
+    // Handle jump input
+    if (this.jumpFactor > 0) {
+      if (this.grounded) {
+        // Apply initial jump force
+        this.verticalVelocity = JUMP_FORCE
+        this.grounded = false
+        this.jumpBufferTime = 0
+      } else {
+        // Buffer the jump input
+        this.jumpBufferTime = timestamp - this.lastJumpTime
+      }
+      this.lastJumpTime = timestamp
+    }
 
-      this.height = 0.5 * GRAVITY.y * t * t
+    // Apply vertical movement
+    this.movePerFrame = this.verticalVelocity * timeDiff
 
-      this.movePerFrame = this.height - this.lastHeight
-    } else {
-      // reset the animation
-      this.height = 0
-      this.lastHeight = 0
+    // Reset vertical velocity when grounded
+    if (this.grounded) {
+      this.verticalVelocity = 0
       this.movePerFrame = 0
-      this.startFallAnimation = timestamp
-    }
 
-    const jt = timestamp - this.startJumpAnimation
-    if (this.grounded && jt > JUMP_DURATION) {
-      this.jumpFactor = 0
-      this.startJumpAnimation = timestamp
-    } else {
-      this.movePerFrame += lerp(
-        0,
-        this.jumpFactor * JUMP_AMPLITUDE,
-        UpDownCirc(clamp(jt / JUMP_DURATION, 0, 1))
-      )
+      // Check if we have a buffered jump
+      if (this.jumpFactor > 0 && this.jumpBufferTime < this.jumpBufferDuration) {
+        this.verticalVelocity = JUMP_FORCE
+        this.grounded = false
+      }
     }
-
-    this.lastHeight = this.height
   }
 
   setGrounded(grounded: boolean) {
     this.grounded = grounded
+    if (grounded) {
+      this.jumpBufferTime = 0
+      this.verticalVelocity = 0
+    }
   }
 
   setJumpFactor(jumpFactor: number) {
@@ -498,7 +498,6 @@ class CharacterController extends THREE.Mesh {
         // * Grounded
         this.heightController.setGrounded(true)
       } else {
-        this.heightController.lastGroundHeight = hitPoint.y + avatarHalfHeight
         this.heightController.setGrounded(false)
       }
     } else {
@@ -516,7 +515,6 @@ class CharacterController extends THREE.Mesh {
 
       if (groundAboveFootHit) {
         // * passed the ground
-        this.position.y = this.heightController.lastGroundHeight
         this.heightController.setGrounded(true)
       } else {
         this.heightController.setGrounded(false)
@@ -527,7 +525,7 @@ class CharacterController extends THREE.Mesh {
     {
       // this.characterController.computeColliderMovement(
       //   this.physicsObject.collider, // The collider we would like to move.
-      //   this.position // The movement we would like to apply if there wasn’t any obstacle.
+      //   this.position // The movement we would like to apply if there wasn't any obstacle.
       // )
       // // Read the result
       // const correctedMovement = this.characterController.computedMovement()

@@ -1,6 +1,5 @@
 import * as THREE from 'three'
-import { RAPIER, usePhysics, usePhysicsObjects, useScene, useTick } from '../../init'
-import { addPhysics } from '../../physics/physics'
+import { useScene } from '../../init'
 
 const _addCapsule = (
   height: number,
