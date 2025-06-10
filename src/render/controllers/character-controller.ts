@@ -474,6 +474,37 @@ class CharacterController extends THREE.Mesh {
 
   checkCollisionWithFixed(direction: THREE.Vector3): boolean {
     const physics = usePhysics()
+    const avatarHalfHeight = this.avatar.height / 2
+
+    // Create temporary vectors for raycast
+    const tempVec1 = new THREE.Vector3()
+    const tempVec2 = new THREE.Vector3()
+    const tempRay = new RAPIER.Ray(tempVec1, tempVec2)
+
+    // First, detect what we're standing on
+    const rayOrigin = tempVec1.copy(this.position)
+    // Start ray slightly above ground level to avoid starting inside the ground collider
+    rayOrigin.y -= avatarHalfHeight - 0.1
+
+    tempRay.origin = rayOrigin
+    tempRay.dir = DOWN
+
+    // Cast ray to detect ground
+    const groundHit = physics.castRay(
+      tempRay,
+      0.2, // Only check a small distance since we're already close to ground
+      true,
+      RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
+      undefined,
+      this.physicsObject.collider,
+      this.physicsObject.rigidBody
+    )
+
+    // Get the ground collider if we're standing on something
+    let groundCollider: Rapier.Collider | undefined
+    if (groundHit) {
+      groundCollider = groundHit.collider
+    }
 
     // Calculate proposed new position
     const proposedPosition = vec3_collision.copy(this.position).add(direction)
@@ -481,7 +512,7 @@ class CharacterController extends THREE.Mesh {
     // Set collider to proposed position
     this.physicsObject.collider.setTranslation(proposedPosition)
 
-    // Check for collisions with fixed objects
+    // Check for collisions with fixed objects, excluding the ground we're standing on
     const hit = physics.castShape(
       this.position,
       this.physicsObject.collider.rotation(),
@@ -492,7 +523,8 @@ class CharacterController extends THREE.Mesh {
       RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
       undefined,
       this.physicsObject.collider,
-      this.physicsObject.rigidBody
+      this.physicsObject.rigidBody,
+      groundCollider ? (collider: Rapier.Collider) => collider !== groundCollider : undefined // Exclude the ground collider we're standing on
     )
 
     // Reset collider position
