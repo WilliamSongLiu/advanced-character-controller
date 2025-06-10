@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { EffectComposer, Pass } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import TickManager from './controllers/tick-manager'
+import { InteractionController } from './controllers/interaction-controller'
 
 // wasm
 import Rapier from '@dimforge/rapier3d'
@@ -19,6 +20,7 @@ let scene: THREE.Scene,
   renderTarget: THREE.WebGLRenderTarget,
   composer: EffectComposer,
   controls: AvatarController,
+  interactionController: InteractionController,
   renderWidth: number,
   renderHeight: number,
   renderAspectRatio: number,
@@ -90,6 +92,14 @@ export const initEngine = async () => {
   const capsule = _addCapsule(1.5, 0.5, 10, 10)
   controls = new AvatarController(capsule, camera)
 
+  // Initialize interaction controller
+  interactionController = new InteractionController()
+
+  // Add interaction controller to tick system
+  renderTickManager.addEventListener('tick', () => {
+    interactionController.update()
+  })
+
   // config
   generalLoader = new GeneralLoader()
 
@@ -131,5 +141,7 @@ export const useTextureLoader = () => textureLoader
 export const useLoader = () => generalLoader
 export const usePhysics = () => physicsWorld
 export const usePhysicsObjects = () => physicsObjects
+
+export const useInteractionController = () => interactionController
 
 export { RAPIER }

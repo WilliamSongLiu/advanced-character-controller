@@ -65,7 +65,7 @@ const _addCubeMesh = (pos: THREE.Vector3) => {
   // * Mesh
   const geometry = new THREE.BoxGeometry(size, size, size)
   const material = new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color().setHex(Math.min(Math.random() + 0.15, 1) * 0xffffff),
+    color: 0xFFFFFF,
     side: THREE.DoubleSide,
   })
   const cube = new THREE.Mesh(geometry, material)
@@ -86,4 +86,33 @@ const _addCubeMesh = (pos: THREE.Vector3) => {
   return cube
 }
 
-export { _addCapsule, _addGroundMesh, _addCubeMesh }
+const _addChestMesh = (pos: THREE.Vector3) => {
+  const scene = useScene()
+  // * Settings
+  const size = 1
+
+  // * Mesh
+  const geometry = new THREE.BoxGeometry(size, size, size)
+  const material = new THREE.MeshPhysicalMaterial({
+    color: 0x8B4513, // Brown color
+    side: THREE.DoubleSide,
+  })
+  const chest = new THREE.Mesh(geometry, material)
+
+  chest.position.copy(pos)
+  chest.position.y += size / 2 // Place it on the ground
+
+  // * Physics
+  const collider = addPhysics(chest, 'fixed', true, undefined, 'cuboid', {
+    width: size / 2,
+    height: size / 2,
+    depth: size / 2,
+  }).collider
+
+  // * Add the mesh to the scene
+  scene.add(chest)
+
+  return chest
+}
+
+export { _addCapsule, _addGroundMesh, _addCubeMesh, _addChestMesh }

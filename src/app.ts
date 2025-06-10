@@ -5,10 +5,10 @@ import {
   useScene,
   useLoader,
   useTick,
+  useInteractionController,
 } from './render/init'
 
-import { _addGroundMesh, _addCubeMesh } from './render/controllers/utils/meshes'
-
+import { _addGroundMesh, _addCubeMesh, _addChestMesh } from './render/controllers/utils/meshes'
 import { TickData } from './render/controllers/tick-manager'
 
 const startApp = async () => {
@@ -36,6 +36,19 @@ const startApp = async () => {
       new THREE.Vector3((Math.random() - 0.5) * 20, 20, (Math.random() - 0.5) * 20)
     )
   }
+
+  // Create chest
+  const chest = _addChestMesh(new THREE.Vector3(5, 0, 5))
+
+  // Set up interaction system
+  const interactionController = useInteractionController()
+  interactionController.addInteractable(chest)
+  interactionController.setInteractionCallback((object) => {
+    // Spawn a cube above the interacted object using _addCubeMesh
+    const spawnPos = new THREE.Vector3().copy(object.position)
+    spawnPos.y += 1
+    _addCubeMesh(spawnPos)
+  })
 }
 
 export default startApp
