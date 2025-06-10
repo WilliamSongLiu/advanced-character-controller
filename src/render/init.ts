@@ -8,7 +8,7 @@ import { InteractionManager } from './managers/interaction-manager'
 // wasm
 import Rapier from '@dimforge/rapier3d'
 import AvatarController from './managers/character-controller'
-import { _addCapsule } from './game/meshes'
+import { _addCapsule } from './game/objects'
 import InitRapier from './physics/RAPIER'
 import { PhysicsObject } from './physics/physics'
 import { GRAVITY } from './physics/constants'
