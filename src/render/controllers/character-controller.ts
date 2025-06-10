@@ -494,7 +494,11 @@ class CharacterController extends THREE.Mesh {
   }
 
   updateCamera(timestamp: number, timeDiff: number) {
-    this.camera.position.copy(this.position)
+    // Calculate the camera's target position (character's head)
+    const targetPosition = vec3_1.copy(this.position)
+    targetPosition.y += this.avatar.height / 2 * 0.9
+
+    this.camera.position.copy(targetPosition)
 
     // moving by the camera angle
     const circleRadius = this.zoomController.zoom
@@ -508,7 +512,8 @@ class CharacterController extends THREE.Mesh {
     // Prevent camera from going below ground plane
     this.camera.position.y = Math.max(this.camera.position.y, 0.1)
 
-    this.camera.lookAt(this.position)
+    // Look at the character's head position
+    this.camera.lookAt(targetPosition)
 
     const isFirstPerson = this.zoomController.zoom <= this.avatar.width
     if (isFirstPerson) {
