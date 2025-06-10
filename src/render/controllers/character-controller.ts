@@ -394,17 +394,16 @@ class CharacterController extends THREE.Mesh {
     const colliderPosition = new THREE.Vector3().copy(this.position)
     this.physicsObject.collider.setTranslation(colliderPosition)
 
-    // hitting the ground
-    const rayOrigin = new THREE.Vector3().copy(this.position)
-    // ray origin is at the foot of the avatar
-    rayOrigin.y -= avatarHalfHeight
+    // Create a small downward movement vector to check for ground
+    const groundCheckVector = new THREE.Vector3(0, -1, 0)
 
-    const ray = new RAPIER.Ray(rayOrigin, new THREE.Vector3(0, -1, 0))
-
-    // First try ray down
-    let groundHit = physics.castRay(
-      ray,
-      1000,
+    // Check for ground using castShape
+    const hit = physics.castShape(
+      this.position,
+      this.physicsObject.collider.rotation(),
+      groundCheckVector,
+      this.physicsObject.collider.shape,
+      1,
       true,
       RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
       undefined,
@@ -412,26 +411,13 @@ class CharacterController extends THREE.Mesh {
       this.physicsObject.rigidBody
     )
 
-    // If no ground found below, try ray up
-    if (!groundHit) {
-      ray.dir = new THREE.Vector3(0, 1, 0)
-      groundHit = physics.castRay(
-        ray,
-        this.avatar.height / 2,
-        true,
-        RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
-        undefined,
-        this.physicsObject.collider,
-        this.physicsObject.rigidBody
-      )
-    }
-
     // Handle the ground detection result
-    if (groundHit) {
-      const hitPoint = ray.pointAt(groundHit.toi) as THREE.Vector3
-      const distance = rayOrigin.y - hitPoint.y
+    if (hit) {
+      const hitPoint = hit.witness1
+      const playerBottomY = this.position.y - avatarHalfHeight
+      const distance = playerBottomY - hitPoint.y
 
-      if (distance <= 0.1 || ray.dir.y > 0) {
+      if (distance <= 0.1) {
         this.position.y = hitPoint.y + avatarHalfHeight
         this.heightController.setGrounded(true)
       } else {
@@ -492,7 +478,7 @@ class CharacterController extends THREE.Mesh {
       this.physicsObject.collider.rotation(),
       direction,
       this.physicsObject.collider.shape,
-      1.0,
+      0.1,
       true,
       RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
       undefined,
