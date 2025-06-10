@@ -239,49 +239,6 @@ class InputManager {
   }
 }
 
-// * Responsible for the Head Bob (up and down) movement of the character (only works in first-person-mode)
-class HeadBobController {
-  headBobTimer: number
-  headBobAmount: number
-  lastHeadBobDiff: number
-  headBobActive: boolean
-
-  constructor() {
-    this.headBobTimer = 0
-    this.lastHeadBobDiff = 0
-    this.headBobAmount = 0
-    this.headBobActive = false
-  }
-
-  getHeadBob(timeDiff: number, isMoving: boolean) {
-    const HEAD_BOB_DURATION = 0.1
-    const HEAD_BOB_FREQUENCY = 0.8
-    const HEAD_BOB_AMPLITUDE = 0.3
-
-    if (!this.headBobActive) {
-      this.headBobActive = isMoving
-    }
-
-    if (this.headBobActive) {
-      const STEP = Math.PI
-
-      const currentAmount = this.headBobTimer * HEAD_BOB_FREQUENCY * (1 / HEAD_BOB_DURATION)
-      const headBobDiff = currentAmount % STEP
-
-      this.headBobTimer += timeDiff
-      this.headBobAmount = Math.sin(currentAmount) * HEAD_BOB_AMPLITUDE
-
-      if (headBobDiff < this.lastHeadBobDiff) {
-        this.headBobActive = false
-      }
-
-      this.lastHeadBobDiff = headBobDiff
-    }
-
-    return this.headBobAmount
-  }
-}
-
 // * Responsible for the camera zoom on the character (first-person-mode and third-person-mode)
 class ZoomController {
   zoom: number
@@ -396,7 +353,6 @@ class HeightController {
 class CharacterController extends THREE.Mesh {
   camera: THREE.PerspectiveCamera
   inputManager: InputManager
-  headBobController: HeadBobController
   heightController: HeightController
   phi: number
   theta: number
@@ -405,7 +361,6 @@ class CharacterController extends THREE.Mesh {
   startZoomAnimation: number
   zoomController: ZoomController
   physicsObject: PhysicsObject
-  // characterController: Rapier.KinematicCharacterController
   avatar: AvatarController
 
   constructor(avatar: AvatarController, camera: THREE.PerspectiveCamera) {
@@ -418,17 +373,11 @@ class CharacterController extends THREE.Mesh {
     this.avatar = avatar
 
     this.inputManager = new InputManager()
-    this.headBobController = new HeadBobController()
     this.zoomController = new ZoomController()
     this.heightController = new HeightController()
 
     // physics
     this.physicsObject = this.initPhysics(avatar)
-
-    // ! Rapier's character controller is bugged
-    // // The gap the controller will leave between the character and its environment.
-    // const OFFSET = 0.01
-    // this.characterController = physics.createCharacterController(OFFSET)
 
     this.startZoomAnimation = 0
 
@@ -561,12 +510,8 @@ class CharacterController extends THREE.Mesh {
 
     this.camera.lookAt(this.position)
 
-    // head bob
     const isFirstPerson = this.zoomController.zoom <= this.avatar.width
     if (isFirstPerson) {
-      this.camera.position.y += this.headBobController.getHeadBob(timeDiff, this.isMoving2D)
-
-      // keep looking at the same position in the object in front
       const physics = usePhysics()
 
       const rayOrigin = vec3_1.copy(this.camera.position)
