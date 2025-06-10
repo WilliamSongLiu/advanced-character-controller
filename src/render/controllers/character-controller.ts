@@ -7,28 +7,14 @@ import { GRAVITY } from '../physics/utils/constants'
 import { _calculateObjectSize } from './utils/objects'
 import { clamp, lerp, easeOutExpo } from './utils/math'
 
-// * helpers
-const HALF_PI = Math.PI / 2
-const FORWARD = new THREE.Vector3(0, 0, -1)
-const LEFT = new THREE.Vector3(-1, 0, 0)
-const UP = new THREE.Vector3(0, 1, 0)
-const RIGHT = new THREE.Vector3(1, 0, 0)
-const DOWN = new THREE.Vector3(0, -1, 0)
-
 // * constants
 const MIN_ZOOM_LEVEL = 0.001 // needs to be slightly bigger than zero
 const MAX_ZOOM_LEVEL = 20
 const SCROLL_LEVEL_STEP = 1.5
 const SCROLL_ANIMATION_SPEED = 2
+const WALK_SPEED = 0.4
+const SPRINT_SPEED = 0.6
 const JUMP_FORCE = 8
-
-// * local variables
-const quaternion_0 = new THREE.Quaternion()
-const quaternion_1 = new THREE.Quaternion()
-const vec3_0 = new THREE.Vector3()
-const vec3_1 = new THREE.Vector3()
-const vec3_collision = new THREE.Vector3()
-let ray_0: Rapier.Ray
 
 // * supported keyboard keys
 enum KEYS {
@@ -389,9 +375,6 @@ class CharacterController extends THREE.Mesh {
   }
 
   initPhysics(avatar: AvatarController) {
-    // initialize ray
-    ray_0 = new RAPIER.Ray(vec3_0, vec3_0)
-
     // physics object
     const radius = avatar.width / 2
     const halfHeight = avatar.height / 2 - radius
@@ -408,17 +391,15 @@ class CharacterController extends THREE.Mesh {
     const avatarHalfHeight = this.avatar.height / 2
 
     // set collider position
-    const colliderPosition = vec3_0.copy(this.position)
+    const colliderPosition = new THREE.Vector3().copy(this.position)
     this.physicsObject.collider.setTranslation(colliderPosition)
 
     // hitting the ground
-    const rayOrigin = vec3_1.copy(this.position)
+    const rayOrigin = new THREE.Vector3().copy(this.position)
     // ray origin is at the foot of the avatar
     rayOrigin.y -= avatarHalfHeight
 
-    const ray = ray_0
-    ray.origin = rayOrigin
-    ray.dir = DOWN
+    const ray = new RAPIER.Ray(rayOrigin, new THREE.Vector3(0, -1, 0))
 
     // First try ray down
     let groundHit = physics.castRay(
@@ -433,7 +414,7 @@ class CharacterController extends THREE.Mesh {
 
     // If no ground found below, try ray up
     if (!groundHit) {
-      ray.dir = UP
+      ray.dir = new THREE.Vector3(0, 1, 0)
       groundHit = physics.castRay(
         ray,
         this.avatar.height / 2,
@@ -476,22 +457,15 @@ class CharacterController extends THREE.Mesh {
     const physics = usePhysics()
     const avatarHalfHeight = this.avatar.height / 2
 
-    // Create temporary vectors for raycast
-    const tempVec1 = new THREE.Vector3()
-    const tempVec2 = new THREE.Vector3()
-    const tempRay = new RAPIER.Ray(tempVec1, tempVec2)
+    // Create vectors for ground detection
+    const groundRayOrigin = new THREE.Vector3().copy(this.position)
+    groundRayOrigin.y -= avatarHalfHeight - 0.1 // Start slightly above ground level
 
-    // First, detect what we're standing on
-    const rayOrigin = tempVec1.copy(this.position)
-    // Start ray slightly above ground level to avoid starting inside the ground collider
-    rayOrigin.y -= avatarHalfHeight - 0.1
-
-    tempRay.origin = rayOrigin
-    tempRay.dir = DOWN
+    const groundRay = new RAPIER.Ray(groundRayOrigin, new THREE.Vector3(0, -1, 0))
 
     // Cast ray to detect ground
     const groundHit = physics.castRay(
-      tempRay,
+      groundRay,
       0.2, // Only check a small distance since we're already close to ground
       true,
       RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
@@ -507,7 +481,7 @@ class CharacterController extends THREE.Mesh {
     }
 
     // Calculate proposed new position
-    const proposedPosition = vec3_collision.copy(this.position).add(direction)
+    const proposedPosition = new THREE.Vector3().copy(this.position).add(direction)
 
     // Set collider to proposed position
     this.physicsObject.collider.setTranslation(proposedPosition)
@@ -524,7 +498,7 @@ class CharacterController extends THREE.Mesh {
       undefined,
       this.physicsObject.collider,
       this.physicsObject.rigidBody,
-      groundCollider ? (collider: Rapier.Collider) => collider !== groundCollider : undefined // Exclude the ground collider we're standing on
+      groundCollider ? (collider: Rapier.Collider) => collider !== groundCollider : undefined
     )
 
     // Reset collider position
@@ -563,14 +537,14 @@ class CharacterController extends THREE.Mesh {
 
   updateCamera(timestamp: number, timeDiff: number) {
     // Calculate the camera's target position (character's head)
-    const targetPosition = vec3_1.copy(this.position)
+    const targetPosition = new THREE.Vector3().copy(this.position)
     targetPosition.y += this.avatar.height / 2 * 0.9
 
     this.camera.position.copy(targetPosition)
 
     // moving by the camera angle
     const circleRadius = this.zoomController.zoom
-    const cameraOffset = vec3_0.set(
+    const cameraOffset = new THREE.Vector3(
       circleRadius * Math.cos(-this.phi) * Math.cos(this.theta),
       circleRadius * Math.sin(-this.theta),
       circleRadius * Math.sin(-this.phi) * Math.cos(this.theta)
@@ -587,17 +561,15 @@ class CharacterController extends THREE.Mesh {
     if (isFirstPerson) {
       const physics = usePhysics()
 
-      const rayOrigin = vec3_1.copy(this.camera.position)
-      const rayDirection = vec3_0.set(0, 0, -1).applyQuaternion(this.camera.quaternion).normalize()
-      const ray = ray_0
-      ray.origin = rayOrigin
-      ray.dir = rayDirection
+      const rayOrigin = new THREE.Vector3().copy(this.camera.position)
+      const rayDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion).normalize()
+      const ray = new RAPIER.Ray(rayOrigin, rayDirection)
 
       const hit = physics.castRay(ray, 1000, false)
 
       if (hit) {
         const point = ray.pointAt(hit.toi)
-        const hitPoint = vec3_0.set(point.x, point.y, point.z)
+        const hitPoint = new THREE.Vector3(point.x, point.y, point.z)
         this.camera.lookAt(hitPoint)
       }
     }
@@ -607,7 +579,7 @@ class CharacterController extends THREE.Mesh {
     const timeDiff_d10 = timeDiff * 10
 
     const shiftSpeedUpAction = () =>
-      this.inputManager.runActionByOneKey([KEYS.shiftL, KEYS.shiftR], () => 0.6, () => 0.4)
+      this.inputManager.runActionByOneKey([KEYS.shiftL, KEYS.shiftR], () => SPRINT_SPEED, () => WALK_SPEED)
 
     const forwardVelocity =
       this.inputManager.runActionByKey(KEYS.w, shiftSpeedUpAction, () => 0) -
@@ -617,24 +589,24 @@ class CharacterController extends THREE.Mesh {
       this.inputManager.runActionByKey(KEYS.a, shiftSpeedUpAction, () => 0) -
       this.inputManager.runActionByKey(KEYS.d, shiftSpeedUpAction, () => 0)
 
-    const qx = quaternion_1
-    qx.setFromAxisAngle(UP, this.phi + HALF_PI)
+    const qx = new THREE.Quaternion()
+    qx.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.phi + Math.PI / 2)
 
-    vec3_0.copy(FORWARD)
-    vec3_0.applyQuaternion(qx)
-    vec3_0.multiplyScalar(forwardVelocity * timeDiff_d10)
+    const forwardVector = new THREE.Vector3().copy(new THREE.Vector3(0, 0, -1))
+    forwardVector.applyQuaternion(qx)
+    forwardVector.multiplyScalar(forwardVelocity * timeDiff_d10)
 
-    vec3_1.copy(LEFT)
-    vec3_1.applyQuaternion(qx)
-    vec3_1.multiplyScalar(sideVelocity * timeDiff_d10)
+    const sideVector = new THREE.Vector3().copy(new THREE.Vector3(-1, 0, 0))
+    sideVector.applyQuaternion(qx)
+    sideVector.multiplyScalar(sideVelocity * timeDiff_d10)
 
     // Combine the vectors to get the actual movement direction
-    const movementDirection = vec3_0.clone().add(vec3_1).normalize()
+    const movementDirection = forwardVector.clone().add(sideVector).normalize()
 
     // Apply movement if no collision with fixed objects
     if (movementDirection.length() > 0 && !this.checkCollisionWithFixed(movementDirection)) {
-      this.position.add(vec3_0)
-      this.position.add(vec3_1)
+      this.position.add(forwardVector)
+      this.position.add(sideVector)
     }
 
     // Height
@@ -660,10 +632,10 @@ class CharacterController extends THREE.Mesh {
     this.phi += -xh * PHI_SPEED
     this.theta = clamp(this.theta + -yh * THETA_SPEED, -Math.PI / 2 + 0.1, Math.PI / 2 - 0.1)
 
-    const qx = quaternion_0
-    qx.setFromAxisAngle(UP, this.phi)
-    const qz = quaternion_1
-    qz.setFromAxisAngle(RIGHT, this.theta)
+    const qx = new THREE.Quaternion()
+    qx.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.phi)
+    const qz = new THREE.Quaternion()
+    qz.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.theta)
 
     const q = qx.multiply(qz)
 
