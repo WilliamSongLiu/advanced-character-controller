@@ -87,7 +87,7 @@ export const initEngine = async () => {
   )
 
   // controls
-  const capsule = _addCapsule(1.5, 0.5, 10, 10)
+  const capsule = _addCapsule(new THREE.Vector3(0, 2, 0), 1.5, 0.5, 10, 10)
   controls = new AvatarController(capsule, camera)
 
   // Initialize interaction manager

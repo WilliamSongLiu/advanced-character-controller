@@ -28,7 +28,7 @@ const startApp = async () => {
   scene.add(dirLight, ambientLight)
 
   // * APP
-  _addGroundMesh()
+  _addGroundMesh(new THREE.Vector3(0, 0, 0))
 
   const NUM_CUBES = 10
   for (let i = 0; i < NUM_CUBES; i++) {
@@ -40,7 +40,7 @@ const startApp = async () => {
   // Create chests
   const NUM_CHESTS = 2
   for (let i = 0; i < NUM_CHESTS; i++) {
-    const chest = _addChestMesh(new THREE.Vector3(5 * (i + 1), 0, 5))
+    const chest = _addChestMesh(new THREE.Vector3(5 * (i + 1), 0.5, 5))
     interactionManager.addInteractable(chest, () => {
       // Spawn a cube above the interacted chest
       const spawnPos = new THREE.Vector3().copy(chest.position)
