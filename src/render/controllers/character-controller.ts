@@ -420,7 +420,8 @@ class CharacterController extends THREE.Mesh {
     ray.origin = rayOrigin
     ray.dir = DOWN
 
-    const groundUnderFootHit = physics.castRay(
+    // First try ray down
+    let groundHit = physics.castRay(
       ray,
       1000,
       true,
@@ -430,19 +431,10 @@ class CharacterController extends THREE.Mesh {
       this.physicsObject.rigidBody
     )
 
-    if (groundUnderFootHit) {
-      const hitPoint = ray.pointAt(groundUnderFootHit.toi) as THREE.Vector3
-      const distance = rayOrigin.y - hitPoint.y
-      if (distance <= 0) {
-        // * Grounded
-        this.heightController.setGrounded(true)
-      } else {
-        this.heightController.setGrounded(false)
-      }
-    } else {
-      // * Shoot another ray up to see if we've passed the ground
+    // If no ground found below, try ray up
+    if (!groundHit) {
       ray.dir = UP
-      const groundAboveFootHit = physics.castRay(
+      groundHit = physics.castRay(
         ray,
         this.avatar.height / 2,
         true,
@@ -451,13 +443,21 @@ class CharacterController extends THREE.Mesh {
         this.physicsObject.collider,
         this.physicsObject.rigidBody
       )
+    }
 
-      if (groundAboveFootHit) {
-        // * passed the ground
+    // Handle the ground detection result
+    if (groundHit) {
+      const hitPoint = ray.pointAt(groundHit.toi) as THREE.Vector3
+      const distance = rayOrigin.y - hitPoint.y
+
+      if (distance <= 0.1 || ray.dir.y > 0) {
+        this.position.y = hitPoint.y + avatarHalfHeight
         this.heightController.setGrounded(true)
       } else {
         this.heightController.setGrounded(false)
       }
+    } else {
+      this.heightController.setGrounded(false)
     }
 
     // ! Rapier.js character controller is bugged
@@ -474,33 +474,34 @@ class CharacterController extends THREE.Mesh {
 
   checkCollisionWithFixed(direction: THREE.Vector3): boolean {
     const physics = usePhysics()
-    const avatarRadius = this.avatar.width / 2
 
-    const rayOrigin = vec3_collision.copy(this.position)
-    const ray = ray_0
-    ray.origin = rayOrigin
-    ray.dir = direction.clone().normalize()
+    // Calculate proposed new position
+    const proposedPosition = vec3_collision.copy(this.position).add(direction)
 
-    const rayDistance = avatarRadius + 0.1
+    // Set collider to proposed position
+    this.physicsObject.collider.setTranslation(proposedPosition)
 
-    const hit = physics.castRayAndGetNormal(
-      ray,
-      rayDistance,
+    // Check for collisions with fixed objects
+    const hit = physics.castShape(
+      this.position,
+      this.physicsObject.collider.rotation(),
+      direction,
+      this.physicsObject.collider.shape,
+      1.0,
       true,
-      undefined,
+      RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
       undefined,
       this.physicsObject.collider,
       this.physicsObject.rigidBody
     )
 
+    // Reset collider position
+    this.physicsObject.collider.setTranslation(this.position)
+
     if (hit) {
       const collider = hit.collider
       const rigidBody = collider.parent()
-
-      if (rigidBody) {
-        const bodyType = rigidBody.bodyType()
-        return bodyType === RAPIER.RigidBodyType.Fixed
-      }
+      return rigidBody ? rigidBody.bodyType() === RAPIER.RigidBodyType.Fixed : false
     }
 
     return false
