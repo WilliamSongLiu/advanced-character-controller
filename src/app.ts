@@ -108,13 +108,18 @@ const startApp = async () => {
     scene.add(cube)
   }
 
-  const NUM_CUBES = 10
-  for (let i = 0; i < NUM_CUBES; i++) {
+  const spawnCube = () => {
     _addCubeMesh(
-      new THREE.Vector3((Math.random() - 0.5) * 20, 10 + i * 5, (Math.random() - 0.5) * 20)
+      new THREE.Vector3((Math.random() - 0.5) * 20, 20, (Math.random() - 0.5) * 20)
     )
   }
 
+  const NUM_CUBES = 10
+  for (let i = 0; i < NUM_CUBES; i++) {
+    spawnCube()
+  }
+
+  gui.add({ spawnCube }, 'spawnCube').name('Spawn Cube')
 }
 
 export default startApp
