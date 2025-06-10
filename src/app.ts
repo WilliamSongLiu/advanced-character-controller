@@ -38,17 +38,17 @@ const startApp = async () => {
     )
   }
 
-  // Create chest
-  const chest = _addChestMesh(new THREE.Vector3(5, 0, 5))
-
-  // Set up interaction system
-  interactionManager.addInteractable(chest)
-  interactionManager.setInteractionCallback((object) => {
-    // Spawn a cube above the interacted object using _addCubeMesh
-    const spawnPos = new THREE.Vector3().copy(object.position)
-    spawnPos.y += 1
-    _addCubeMesh(spawnPos)
-  })
+  // Create chests
+  const NUM_CHESTS = 2
+  for (let i = 0; i < NUM_CHESTS; i++) {
+    const chest = _addChestMesh(new THREE.Vector3(5 * (i + 1), 0, 5))
+    interactionManager.addInteractable(chest, () => {
+      // Spawn a cube above the interacted chest
+      const spawnPos = new THREE.Vector3().copy(chest.position)
+      spawnPos.y += 1
+      _addCubeMesh(spawnPos)
+    })
+  }
 }
 
 export default startApp

@@ -1,15 +1,18 @@
 import * as THREE from 'three'
 import { useCamera, useScene } from '../init'
 
+interface InteractableObject extends THREE.Object3D {
+  onInteract?: () => void;
+}
+
 export class InteractionManager {
   private raycaster: THREE.Raycaster
   private camera: THREE.Camera
   private scene: THREE.Scene
   private interactionText: THREE.Sprite
-  private interactableObjects: THREE.Object3D[] = []
-  private currentInteractable: THREE.Object3D | null = null
+  private interactableObjects: InteractableObject[] = []
+  private currentInteractable: InteractableObject | null = null
   private readonly INTERACTION_DISTANCE = 3
-  private onInteract: ((object: THREE.Object3D) => void) | null = null
 
   constructor() {
     this.camera = useCamera()
@@ -40,17 +43,14 @@ export class InteractionManager {
     window.addEventListener('keydown', this.handleKeyPress.bind(this))
   }
 
-  public addInteractable(object: THREE.Object3D) {
+  public addInteractable(object: InteractableObject, onInteract?: () => void) {
+    object.onInteract = onInteract
     this.interactableObjects.push(object)
   }
 
-  public setInteractionCallback(callback: (object: THREE.Object3D) => void) {
-    this.onInteract = callback
-  }
-
   private handleKeyPress(event: KeyboardEvent) {
-    if (event.key.toLowerCase() === 'e' && this.currentInteractable && this.onInteract) {
-      this.onInteract(this.currentInteractable)
+    if (event.key.toLowerCase() === 'e' && this.currentInteractable?.onInteract) {
+      this.currentInteractable.onInteract()
     }
   }
 
