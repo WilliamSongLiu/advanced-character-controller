@@ -29,17 +29,6 @@ const vec3_0 = new THREE.Vector3()
 const vec3_1 = new THREE.Vector3()
 let ray_0: Rapier.Ray
 
-// * helper functions
-const ONE = () => {
-  return 1
-}
-const FIVE = () => {
-  return 5
-}
-const ZERO = () => {
-  return 0
-}
-
 // * supported keyboard keys
 enum KEYS {
   a = 'KeyA',
@@ -597,15 +586,15 @@ class CharacterController extends THREE.Mesh {
     const timeDiff_d10 = timeDiff * 10
 
     const shiftSpeedUpAction = () =>
-      this.inputManager.runActionByOneKey([KEYS.shiftL, KEYS.shiftR], FIVE, ONE)
+      this.inputManager.runActionByOneKey([KEYS.shiftL, KEYS.shiftR], () => 5, () => 1)
 
     const forwardVelocity =
-      this.inputManager.runActionByKey(KEYS.w, shiftSpeedUpAction, ZERO) -
-      this.inputManager.runActionByKey(KEYS.s, shiftSpeedUpAction, ZERO)
+      this.inputManager.runActionByKey(KEYS.w, shiftSpeedUpAction, () => 0) -
+      this.inputManager.runActionByKey(KEYS.s, shiftSpeedUpAction, () => 0)
 
     const sideVelocity =
-      this.inputManager.runActionByKey(KEYS.a, shiftSpeedUpAction, ZERO) -
-      this.inputManager.runActionByKey(KEYS.d, shiftSpeedUpAction, ZERO)
+      this.inputManager.runActionByKey(KEYS.a, shiftSpeedUpAction, () => 0) -
+      this.inputManager.runActionByKey(KEYS.d, shiftSpeedUpAction, () => 0)
 
     const qx = quaternion_1
     qx.setFromAxisAngle(UP, this.phi + HALF_PI)
@@ -622,7 +611,7 @@ class CharacterController extends THREE.Mesh {
     this.position.add(vec3_1)
 
     // Height
-    const elevationFactor = this.inputManager.runActionByKey(KEYS.space, ONE, ZERO)
+    const elevationFactor = this.inputManager.runActionByKey(KEYS.space, () => 1, () => 0)
 
     // Jump
     if (this.heightController.grounded) {
