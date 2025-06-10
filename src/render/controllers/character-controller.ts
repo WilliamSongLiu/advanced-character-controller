@@ -534,7 +534,7 @@ class CharacterController extends THREE.Mesh {
     const timeDiff_d10 = timeDiff * 10
 
     const shiftSpeedUpAction = () =>
-      this.inputManager.runActionByOneKey([KEYS.shiftL, KEYS.shiftR], () => 5, () => 1)
+      this.inputManager.runActionByOneKey([KEYS.shiftL, KEYS.shiftR], () => 0.6, () => 0.4)
 
     const forwardVelocity =
       this.inputManager.runActionByKey(KEYS.w, shiftSpeedUpAction, () => 0) -
@@ -576,8 +576,8 @@ class CharacterController extends THREE.Mesh {
     const xh = this.inputManager.currentMouse.mouseXDelta / windowSize.width
     const yh = this.inputManager.currentMouse.mouseYDelta / windowSize.height
 
-    const PHI_SPEED = 2.5
-    const THETA_SPEED = 2.5
+    const PHI_SPEED = 4.0
+    const THETA_SPEED = 4.0
     this.phi += -xh * PHI_SPEED
     this.theta = clamp(this.theta + -yh * THETA_SPEED, -Math.PI / 2 + 0.1, Math.PI / 2 - 0.1)
 
