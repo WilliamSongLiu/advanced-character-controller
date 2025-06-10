@@ -3,7 +3,7 @@ import { RAPIER, usePhysics, useRenderSize } from '../init'
 import { useRenderer } from './../init'
 import { PhysicsObject, addPhysics } from '../physics/physics'
 import Rapier from '@dimforge/rapier3d'
-import { GRAVITY } from '../physics/utils/constants'
+import { GRAVITY } from '../physics/constants'
 import { _calculateObjectSize } from './utils/objects'
 import { clamp, lerp, easeOutExpo } from './utils/math'
 

@@ -11,7 +11,7 @@ import AvatarController from './controllers/character-controller'
 import { _addCapsule } from './controllers/utils/meshes'
 import InitRapier from './physics/RAPIER'
 import { PhysicsObject } from './physics/physics'
-import { GRAVITY } from './physics/utils/constants'
+import { GRAVITY } from './physics/constants'
 
 let scene: THREE.Scene,
   camera: THREE.PerspectiveCamera,
