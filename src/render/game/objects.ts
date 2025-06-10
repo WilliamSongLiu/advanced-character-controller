@@ -48,7 +48,7 @@ const _addGroundMesh = (pos: THREE.Vector3) => {
 const _addCubeMesh = (pos: THREE.Vector3) => {
   const scene = useScene()
 
-  const size = 1
+  const size = 3
 
   const geometry = new THREE.BoxGeometry(size, size, size)
   const material = new THREE.MeshPhysicalMaterial({ color: 0xFFFFFF })

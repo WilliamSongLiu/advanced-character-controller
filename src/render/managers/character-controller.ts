@@ -393,16 +393,17 @@ class CharacterController extends THREE.Mesh {
     const colliderPosition = new THREE.Vector3().copy(this.position)
     this.physicsObject.collider.setTranslation(colliderPosition)
 
-    // Create a small downward movement vector to check for ground
-    const groundCheckVector = new THREE.Vector3(0, -1, 0)
+    // Create ray origin at the foot of the avatar
+    const rayOrigin = new THREE.Vector3().copy(this.position)
+    rayOrigin.y -= avatarHalfHeight
 
-    // Check for ground using castShape
-    const hit = physics.castShape(
-      this.position,
-      this.physicsObject.collider.rotation(),
-      groundCheckVector,
-      this.physicsObject.collider.shape,
-      1,
+    // Create ray pointing down
+    const ray = new RAPIER.Ray(rayOrigin, new THREE.Vector3(0, -1, 0))
+
+    // Cast ray downward to detect ground
+    let hit = physics.castRay(
+      ray,
+      1000,
       true,
       RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
       undefined,
@@ -410,11 +411,24 @@ class CharacterController extends THREE.Mesh {
       this.physicsObject.rigidBody
     )
 
-    // Handle the ground detection result
+    // If no ground below, check above
+    if (!hit) {
+      ray.dir = new THREE.Vector3(0, 1, 0)
+      hit = physics.castRay(
+        ray,
+        this.avatar.height / 2,
+        true,
+        RAPIER.QueryFilterFlags.EXCLUDE_DYNAMIC,
+        undefined,
+        this.physicsObject.collider,
+        this.physicsObject.rigidBody
+      )
+    }
+
+    // Handle the hit result
     if (hit) {
-      const hitPoint = hit.witness1
-      const playerBottomY = this.position.y - avatarHalfHeight
-      const distance = playerBottomY - hitPoint.y
+      const hitPoint = ray.pointAt(hit.toi)
+      const distance = rayOrigin.y - hitPoint.y
 
       if (distance <= 0.1) {
         this.position.y = hitPoint.y + avatarHalfHeight
@@ -424,17 +438,6 @@ class CharacterController extends THREE.Mesh {
       }
     } else {
       this.heightController.setGrounded(false)
-    }
-
-    // ! Rapier.js character controller is bugged
-    {
-      // this.characterController.computeColliderMovement(
-      //   this.physicsObject.collider, // The collider we would like to move.
-      //   this.position // The movement we would like to apply if there wasn't any obstacle.
-      // )
-      // // Read the result
-      // const correctedMovement = this.characterController.computedMovement()
-      // this.position.copy(correctedMovement as THREE.Vector3)
     }
   }
 

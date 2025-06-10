@@ -44,7 +44,7 @@ const startApp = async () => {
     interactionManager.addInteractable(chest, () => {
       // Spawn a cube above the interacted chest
       const spawnPos = new THREE.Vector3().copy(chest.position)
-      spawnPos.y += 1
+      spawnPos.y += 3
       _addCubeMesh(spawnPos)
     })
   }
