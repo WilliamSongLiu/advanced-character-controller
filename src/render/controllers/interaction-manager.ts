@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { useCamera, useScene } from '../init'
 
-export class InteractionController {
+export class InteractionManager {
   private raycaster: THREE.Raycaster
   private camera: THREE.Camera
   private scene: THREE.Scene
@@ -69,7 +69,7 @@ export class InteractionController {
         this.currentInteractable = object
         // Update interaction text position and visibility
         this.interactionText.position.copy(object.position)
-        this.interactionText.position.y += 1.5
+        this.interactionText.position.y += 0.5
         this.interactionText.visible = true
       } else {
         this.currentInteractable = null

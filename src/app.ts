@@ -5,7 +5,7 @@ import {
   useScene,
   useLoader,
   useTick,
-  useInteractionController,
+  useInteractionManager,
 } from './render/init'
 
 import { _addGroundMesh, _addCubeMesh, _addChestMesh } from './render/controllers/utils/meshes'
@@ -19,6 +19,7 @@ const startApp = async () => {
   camera.position.y += 10
   camera.lookAt(new THREE.Vector3(0))
   const { width, height } = useRenderSize()
+  const interactionManager = useInteractionManager()
 
   const dirLight = new THREE.DirectionalLight('#ffffff', 1)
   dirLight.position.y += 1
@@ -41,9 +42,8 @@ const startApp = async () => {
   const chest = _addChestMesh(new THREE.Vector3(5, 0, 5))
 
   // Set up interaction system
-  const interactionController = useInteractionController()
-  interactionController.addInteractable(chest)
-  interactionController.setInteractionCallback((object) => {
+  interactionManager.addInteractable(chest)
+  interactionManager.setInteractionCallback((object) => {
     // Spawn a cube above the interacted object using _addCubeMesh
     const spawnPos = new THREE.Vector3().copy(object.position)
     spawnPos.y += 1
