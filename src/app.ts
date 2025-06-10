@@ -3,7 +3,6 @@ import {
   useCamera,
   useRenderSize,
   useScene,
-  useLoader,
   useTick,
   useInteractionManager,
 } from './render/init'

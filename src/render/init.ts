@@ -9,7 +9,6 @@ import { InteractionManager } from './controllers/interaction-manager'
 import Rapier from '@dimforge/rapier3d'
 import AvatarController from './controllers/character-controller'
 import { _addCapsule } from './controllers/utils/meshes'
-import GeneralLoader from './loaders/general-loader'
 import InitRapier from './physics/RAPIER'
 import { PhysicsObject } from './physics/physics'
 import { GRAVITY } from './physics/utils/constants'
@@ -26,7 +25,6 @@ let scene: THREE.Scene,
   renderAspectRatio: number,
   gltfLoader: GLTFLoader,
   textureLoader: THREE.TextureLoader,
-  generalLoader: GeneralLoader,
   RAPIER: typeof Rapier,
   physicsWorld: Rapier.World,
   physicsObjects: Array<PhysicsObject>
@@ -101,8 +99,6 @@ export const initEngine = async () => {
   })
 
   // config
-  generalLoader = new GeneralLoader()
-
   gltfLoader = new GLTFLoader()
   textureLoader= new THREE.TextureLoader()
 
@@ -138,7 +134,6 @@ export const useTick = (fn: Function) => {
 
 export const useGltfLoader = () => gltfLoader
 export const useTextureLoader = () => textureLoader
-export const useLoader = () => generalLoader
 export const usePhysics = () => physicsWorld
 export const usePhysicsObjects = () => physicsObjects
 
