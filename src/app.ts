@@ -7,7 +7,7 @@ import {
   useTick,
 } from './render/init'
 
-import { addPhysics } from './render/physics/physics'
+import { _addGroundMesh, _addCubeMesh } from './render/controllers/utils/meshes'
 
 import { TickData } from './render/controllers/tick-manager'
 
@@ -27,79 +27,14 @@ const startApp = async () => {
   const ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
   scene.add(dirLight, ambientLight)
 
-
   // * APP
-
-  const _addGroundMesh = () => {
-    // * Settings
-    const planeWidth = 100
-    const planeHeight = 100
-
-    // * Mesh
-    const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight)
-    const material = new THREE.MeshPhysicalMaterial({
-      color: '#333',
-      side: THREE.DoubleSide
-    })
-    const plane = new THREE.Mesh(geometry, material)
-
-    // * Physics
-    const collider = addPhysics(
-      plane,
-      'fixed',
-      true,
-      () => {
-        plane.rotation.x -= Math.PI / 2
-      },
-      'cuboid',
-      {
-        width: planeWidth / 2,
-        height: 0.001,
-        depth: planeHeight / 2,
-      }
-    ).collider
-
-    // * Add the mesh to the scene
-    scene.add(plane)
-  }
-
   _addGroundMesh()
-
-  const _addCubeMesh = (pos: THREE.Vector3) => {
-    // * Settings
-    const size = 1
-
-    // * Mesh
-    const geometry = new THREE.BoxGeometry(size, size, size)
-    const material = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color().setHex(Math.min(Math.random() + 0.15, 1) * 0xffffff),
-      side: THREE.DoubleSide,
-    })
-    const cube = new THREE.Mesh(geometry, material)
-
-    cube.position.copy(pos)
-    cube.position.y += 2
-
-    // * Physics
-    const collider = addPhysics(cube, 'dynamic', true, undefined, 'cuboid', {
-      width: size / 2,
-      height: size / 2,
-      depth: size / 2,
-    }).collider
-
-    // * Add the mesh to the scene
-    scene.add(cube)
-  }
-
-  const spawnCube = () => {
-    _addCubeMesh(
-      new THREE.Vector3((Math.random() - 0.5) * 20, 20, (Math.random() - 0.5) * 20)
-    )
-  }
 
   const NUM_CUBES = 10
   for (let i = 0; i < NUM_CUBES; i++) {
-    spawnCube()
+    _addCubeMesh(
+      new THREE.Vector3((Math.random() - 0.5) * 20, 20, (Math.random() - 0.5) * 20)
+    )
   }
 }
 
