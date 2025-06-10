@@ -22,7 +22,6 @@ let scene: THREE.Scene,
   renderTarget: THREE.WebGLRenderTarget,
   composer: EffectComposer,
   controls: AvatarController,
-  stats: Stats,
   gui: typeof GUI,
   renderWidth: number,
   renderHeight: number,
@@ -73,9 +72,6 @@ export const initEngine = async () => {
   const renderPass = new RenderPass(scene, camera)
   composer.addPass(renderPass)
 
-  stats = Stats()
-  document.body.appendChild(stats.dom)
-
   gui = new GUI()
 
   window.addEventListener(
@@ -118,8 +114,6 @@ export const useScene = () => scene
 export const useCamera = () => camera
 
 export const useControls = () => controls
-
-export const useStats = () => stats
 
 export const useRenderTarget = () => renderTarget
 

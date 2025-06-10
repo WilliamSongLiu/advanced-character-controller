@@ -5,7 +5,6 @@ import {
   usePhysics,
   usePhysicsObjects,
   useRenderer,
-  useStats,
 } from '../init'
 
 // animation params
@@ -51,12 +50,9 @@ class TickManager extends EventTarget {
   startLoop() {
     const composer = useComposer()
     const renderer = useRenderer()
-    // const scene = useScene()
-    // const camera = useCamera()
     const physics = usePhysics()
     const physicsObjects = usePhysicsObjects()
     const controls = useControls()
-    const stats = useStats()
 
     if (!renderer) {
       throw new Error('Updating Frame Failed : Uninitialized Renderer')
@@ -94,13 +90,8 @@ class TickManager extends EventTarget {
       controls.update(timestamp / 1000, timeDiffCapped / 1000)
 
       composer.render()
-      // renderer.render(scene, camera);
 
       this.tick(timestamp, timeDiffCapped, this.fps, frame)
-
-      stats.update()
-
-      // performance tracker end
     }
 
     renderer.setAnimationLoop(animate)
