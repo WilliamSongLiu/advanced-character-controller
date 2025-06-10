@@ -8,7 +8,7 @@ import { InteractionManager } from './managers/interaction-manager'
 // wasm
 import Rapier from '@dimforge/rapier3d'
 import AvatarController from './managers/character-controller'
-import { _addCapsule } from './game/objects'
+import { createCapsule } from './game/objects'
 import InitRapier from './physics/RAPIER'
 import { PhysicsObject } from './physics/physics'
 import { GRAVITY } from './physics/constants'
@@ -87,7 +87,7 @@ export const initEngine = async () => {
   )
 
   // controls
-  const capsule = _addCapsule(new THREE.Vector3(0, 2, 0), 1.5, 0.5, 10, 10)
+  const capsule = createCapsule(new THREE.Vector3(0, 2, 0), 1.5, 0.5, 10, 10)
   controls = new AvatarController(capsule, camera)
 
   // Initialize interaction manager

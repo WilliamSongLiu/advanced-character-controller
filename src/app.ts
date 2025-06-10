@@ -7,7 +7,7 @@ import {
   useInteractionManager,
 } from './render/init'
 
-import { _addGroundMesh, _addCubeMesh, _addChestMesh } from './render/game/objects'
+import { createGroundMesh, createCuboidMesh } from './render/game/objects'
 import { TickData } from './render/managers/tick-manager'
 
 const startApp = async () => {
@@ -28,24 +28,22 @@ const startApp = async () => {
   scene.add(dirLight, ambientLight)
 
   // * APP
-  _addGroundMesh(new THREE.Vector3(0, 0, 0))
+  createGroundMesh(new THREE.Vector3(0, 0, 0))
 
-  const NUM_CUBES = 10
-  for (let i = 0; i < NUM_CUBES; i++) {
-    _addCubeMesh(
-      new THREE.Vector3((Math.random() - 0.5) * 20, 20, (Math.random() - 0.5) * 20)
+  for (let i = 0; i < 10; i++) {
+    createCuboidMesh(
+      new THREE.Vector3((Math.random() - 0.5) * 20, 20, (Math.random() - 0.5) * 20),
+      3, 3, 3, true
     )
   }
 
-  // Create chests
-  const NUM_CHESTS = 2
-  for (let i = 0; i < NUM_CHESTS; i++) {
-    const chest = _addChestMesh(new THREE.Vector3(5 * (i + 1), 0.5, 5))
-    interactionManager.addInteractable(chest, () => {
-      // Spawn a cube above the interacted chest
-      const spawnPos = new THREE.Vector3().copy(chest.position)
+  // Create buttons
+  for (let i = 0; i < 2; i++) {
+    const button = createCuboidMesh(new THREE.Vector3(5 * (i + 1), 0.5, 5), 1, 1, 1, false, 0xBB0000)
+    interactionManager.addInteractable(button, () => {
+      const spawnPos = new THREE.Vector3().copy(button.position)
       spawnPos.y += 3
-      _addCubeMesh(spawnPos)
+      createCuboidMesh(spawnPos)
     })
   }
 }

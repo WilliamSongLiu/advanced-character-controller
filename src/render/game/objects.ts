@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { useScene } from '../init'
 import { addPhysics } from '../physics/physics'
 
-const _addCapsule = (pos: THREE.Vector3, height: number, radius: number, capSegments: number, radialSegments: number) => {
+const createCapsule = (pos: THREE.Vector3, height: number, radius: number, capSegments: number, radialSegments: number) => {
   const scene = useScene()
 
   const geometry = new THREE.CapsuleGeometry(radius, height, capSegments, radialSegments)
@@ -15,7 +15,7 @@ const _addCapsule = (pos: THREE.Vector3, height: number, radius: number, capSegm
   return capsule
 }
 
-const _addGroundMesh = (pos: THREE.Vector3) => {
+const createGroundMesh = (pos: THREE.Vector3) => {
   const scene = useScene()
 
   const size = 100
@@ -45,20 +45,25 @@ const _addGroundMesh = (pos: THREE.Vector3) => {
   return plane
 }
 
-const _addCubeMesh = (pos: THREE.Vector3) => {
+const createCuboidMesh = (
+  pos: THREE.Vector3,
+  width: number = 1,
+  height: number = 1,
+  depth: number = 1,
+  isDynamic: boolean = true,
+  color: number | string = 0xFFFFFF
+) => {
   const scene = useScene()
 
-  const size = 3
-
-  const geometry = new THREE.BoxGeometry(size, size, size)
-  const material = new THREE.MeshPhysicalMaterial({ color: 0xFFFFFF })
+  const geometry = new THREE.BoxGeometry(width, height, depth)
+  const material = new THREE.MeshPhysicalMaterial({ color })
   const cube = new THREE.Mesh(geometry, material)
   cube.position.copy(pos)
 
-  addPhysics(cube, 'dynamic', true, undefined, 'cuboid', {
-    width: size / 2,
-    height: size / 2,
-    depth: size / 2,
+  addPhysics(cube, isDynamic ? 'dynamic' : 'fixed', true, undefined, 'cuboid', {
+    width: width / 2,
+    height: height / 2,
+    depth: depth / 2,
   })
 
   scene.add(cube)
@@ -66,25 +71,4 @@ const _addCubeMesh = (pos: THREE.Vector3) => {
   return cube
 }
 
-const _addChestMesh = (pos: THREE.Vector3) => {
-  const scene = useScene()
-
-  const size = 1
-
-  const geometry = new THREE.BoxGeometry(size, size, size)
-  const material = new THREE.MeshPhysicalMaterial({ color: 0x8B4513 })
-  const chest = new THREE.Mesh(geometry, material)
-  chest.position.copy(pos)
-
-  addPhysics(chest, 'fixed', true, undefined, 'cuboid', {
-    width: size / 2,
-    height: size / 2,
-    depth: size / 2,
-  })
-
-  scene.add(chest)
-
-  return chest
-}
-
-export { _addCapsule, _addGroundMesh, _addCubeMesh, _addChestMesh }
+export { createCapsule, createGroundMesh, createCuboidMesh }
